@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %} Maxsulotlar {% endblock %}
+{% block page %} Maxsulotlar {% endblock %}
+{% block product_active %} active {% endblock %}
+
+{% block content %}
+    <!-- /.content-header -->
+    <div class="col-md-12">
+        <div class="card card-dark">
+            <div class="card-header border-0">
+                <div class="d-flex justify-content-between">
+                  <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Maxsulot qo'shish</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table" style="text-align: center;">
+                    <thead>
+                        <tr>
+                            <th scope="col" style="width: 15px">T/r</th>
+                            <th scope="col" style="width: 255px; text-align: center;">Nomi</th>
+                            <th scope="col" style="text-align: center;">Brendi</th>
+                            <th scope="col" style="text-align: center;">Sotib olingan narx</th>
+                            <th scope="col" style="text-align: center;">Sotish narxi</th>
+                            <th scope="col" style="text-align: center;">Miqdori</th>
+                            <th scope="col" style="text-align: center;">Imkoniyatlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                        <tr>
+                            <th scope="row">{{forloop.counter}}</th>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.brand }}</td>
+                            <td>{% if importproduct_set.exists %} {{ product.importproduct_set.last.buy_price|floatformat:2 }} {% else %} 0 {% endif %}</td>
+                            <td>{{ product.price|floatformat:2 }}</td>
+                            <td>{{ product.quantity }} {{ product.unit }}</td>
+                            <td><a href="#"><button type="submit" class="btn btn-warning" data-toggle="modal">Tahrirlash</button></a>
+                                <a href="#"><button type="submit" class="btn btn-danger" data-toggle="modal">O'chirish</button></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- The Modal -->
+    <div class="modal" id="myModal">
+      <div class="modal-dialog">
+        <div class="modal-content">
+    
+          <!-- Modal Header -->
+          <div class="modal-header bg-dark">
+            <h4 class="modal-title">Yangi mahsulot</h4>
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+    
+          <!-- Modal body -->
+          <form method="post" id="new-product-form" >
+              {% csrf_token %}
+            <div class="modal-body">
+              <label for="new-product-name">Nom:</label>
+              <input type="text" name="name" placeholder="Mahsulot nomi..." id="new-product-name" class="form-control" required>
+              <br>
+              <label for="new-product-name">Brend:</label>
+              <input type="text" name=" brand" placeholder="Mahsulot brendi..." id="new-product-brend" class="form-control" >
+              <br>
+              <label for="new-product-name">Sotish narxi :</label>
+              <input type="text" name="price" placeholder="Maxsulot narxi..." id="new-product-price" class="form-control" >
+              <br>
+              <label for="new-product-name">Miqdori:</label>
+              <input type="number" name="quantity" placeholder="Mahsulot miqdori..." id="new-product-amount" class="form-control" value="0">
+              <br>
+              <label for="new-product-name">O'lchov birlik:</label>
+              <input type="text" name="unit" placeholder="Mahsulot o'lchovi..." id="new-product-unit" class="form-control" value="dona">
+              <br>
+
+            </div>
+    
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Qo`shish</button>
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
+        </div>
+      </form>
+    
+        </div>
+      </div>
+    </div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+{% endblock %}
+
