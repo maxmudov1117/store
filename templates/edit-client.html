@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %} Mijozlar {% endblock %}
+{% block page %} Mijozlar {% endblock %}
+{% block client_active %} active {% endblock %}
+{% block content %}
+<!-- Modal body -->
+<form method="post" id="edit-product-form" style="margin: 20px;">
+    {% csrf_token %}
+    <label for="edit-product-name">FIO:</label>
+    <input type="text" name="name" value="{{client.name}}" placeholder="Mijoz to'liq ismi..."
+           id="edit-product-name" class="form-control" required>
+    <br>
+    <label for="edit-product-name">Do'kon nomi:</label>
+    <input type="text" name="shop_name" value="{{client.shop_name}}" placeholder="Do'kon nom..."
+           id="edit-product-brend" class="form-control" required>
+    <br>
+    <label for="edit-product-name">Telefon raqami:</label>
+    <input type="text" name="phone_number" value="{{client.phone_number}}" placeholder="Telefon raqam..."
+           id="edit-product-price" class="form-control" required>
+    <br>
+    <label for="edit-product-name">Manzili:</label>
+    <input type="text" name="address" value="{{client.address}}" placeholder="Mijoz manzil..."
+           id="edit-product-amount" class="form-control" required>
+    <br>
+    <label for="edit-product-name">Qarzi:</label>
+    <input type="text" name="debt" value="{{client.debt}}" placeholder="Mijoz qarzi..."
+           id="edit-product-" class="form-control" required>
+    <br>
+
+    <!-- Modal footer -->
+    <button type="submit" class="btn btn-success">Yangilash</button>
+    <a href="{% url 'clients' %}">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
+    </a>
+
+</form>
+
+{% endblock %}

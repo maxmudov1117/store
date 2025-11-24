@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% block title %} To'langan qarzlar {% endblock %}
+{% block page %} To'langan qarzlar {% endblock %}
+{% block pad_debt_active %} active {% endblock %}
+
+{% block content %}
+<!-- /.content-header -->
+<div class="col-md-12">
+    <div class="card card-dark">
+        <div class="card-header border-0">
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Qarz qoplash
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table" style="text-align: center;">
+                <thead>
+                <tr>
+                    <th scope="col" style="width: 15px">T/r</th>
+                    <th scope="col" style="width: 255px; text-align: center;">Mijoz</th>
+                    <th scope="col" style="text-align: center;">To'lov miqdori(so'm)</th>
+                    <th scope="col" style="text-align: center;">Izoh</th>
+                    <th scope="col" style="text-align: center;">Sana</th>
+                    <th scope="col" style="text-align: center;">Xodim</th>
+                    <th scope="col" style="text-align: center;">Imkoniyatlar</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for pay_debt in pay_debts %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{ pay_debt.client.name }}</td>
+                    <td>{{ pay_debt.price }} so'm</td>
+                    <td>{{ pay_debt.description }}</td>
+                    <td>{{ pay_debt.created_at }}</td>
+                    <td>{{ pay_debt.user.first_name }} </td>
+                    <td>
+                        <a href="{% url 'edit-pay-debts' pay_debt.id %}">
+                            <button type="submit" class="btn btn-warning" data-toggle="modal">Tahrirlash</button>
+                        </a>
+                        <a href="{% url 'delete-pay-debt' pay_debt.id %}">
+                            <button type="button" class="btn btn-danger">O'chirish</button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-dark">
+                <h4 class="modal-title">Yangi qarz qoplash</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <form method="post" id="new-product-form">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label>Mijoz:</label>
+                    <select name="client_id" id="client" class="form-control">
+                        {% for client in clients %}
+                        <option value="{{ client.id }}">
+                            {{ client.name }} - {{ client.shop_name }} - {{ client.debt }} so'm mavjud!
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <label>To'lanadigan qarz:</label>
+                    <input type="number" name="price" id="new-yarmi-amount"
+                           class="form-control" value="0">
+                    <br>
+                    <label>Batafsil:</label>
+                    <input type="text" name="description" value="0" id="new-product-brend"
+                           class="form-control">
+                    <br>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Qo`shish</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+{% endblock %}
+

@@ -1,66 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
-	<title>Login Page</title>
-	<style>
-		body {
-			background-color: #f2f2f2;
-			font-family: Arial, sans-serif;
-		}
-		.container {
-			background-color: #fff;
-			border-radius: 5px;
-			box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-			margin: 100px auto;
-			max-width: 500px;
-			padding: 20px;
-		}
-		h1 {
-			color: #4CAF50;
-			text-align: center;
-		}
-		label {
-			color: #555;
-			display: block;
-			font-size: 14px;
-			font-weight: bold;
-			margin-bottom: 5px;
-		}
-		input[type="text"], input[type="password"] {
-			border-radius: 3px;
-			border: 1px solid #ccc;
-			font-size: 14px;
-			padding: 10px;
-			width: 95%;
-            margin: 10px 5px;
-		}
-		button {
-			background-color: #4CAF50;
-			border: none;
-			border-radius: 3px;
-			color: #fff;
-			cursor: pointer;
-			font-size: 16px;
-			padding: 10px;
-			width: 100%;
-            margin: 30px 0;
-		}
-		button:hover {
-			background-color: #3e8e41;
-		}
-	</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: #f5f6fa;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Floating shapes */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.2;
+            filter: blur(50px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .shape1 { width: 250px; height: 250px; background: #4CAF50; top: -50px; left: -50px; }
+        .shape2 { width: 200px; height: 200px; background: #81C784; bottom: -60px; right: -40px; animation-delay: 2s; }
+
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px); }
+            50% { transform: translateY(30px) translateX(15px); }
+            100% { transform: translateY(0px) translateX(0px); }
+        }
+
+        .login-box {
+            width: 400px;
+            background: #ffffff;
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            z-index: 1;
+            position: relative;
+            text-align: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #2E7D32;
+            font-size: 28px;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 8px rgba(76,175,80,0.3);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4CAF50, #388E3C);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .footer-text {
+            margin-top: 18px;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .footer-text a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
 </head>
 <body>
-	<div class="container">
-		<h1>Saytga kirish</h1>
-		<form method="post"> 
-            {% csrf_token %}
-			<label for="username">Username:</label>
-			<input type="text" name="username" id="username" placeholder="Username kiriting...">
-			<label for="password">Password:</label>
-			<input type="password" name="password" id="password" placeholder="Password kiriting...">
-			<button>Kirish</button>
-		</form>
-	</div>
+
+<div class="shape shape1"></div>
+<div class="shape shape2"></div>
+
+<div class="login-box">
+    <h2>Saytga kirish</h2>
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Username kiriting..." required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="Password kiriting..." >
+
+        <button type="submit">Kirish</button>
+    </form>
+
+    <div class="footer-text">
+        Hisobingiz yo‘qmi? <a href="#">Admin bilan bog‘laning</a>
+    </div>
+</div>
+
 </body>
 </html>

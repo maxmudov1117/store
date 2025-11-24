@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %} Kirimlar tarixi {% endblock %}
+{% block page %} Kirimlar tarixi {% endblock %}
+{% block import_product_active %} active {% endblock %}
+
+{% block content %}
+<!-- /.content-header -->
+<div class="col-md-12">
+    <div class="card card-dark">
+        <div class="card-header border-0">
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Sotuv
+                    qo'shish
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table" style="text-align: center;">
+                <thead>
+                <tr>
+                    <th scope="col" style="width: 15px">T/r</th>
+                    <th scope="col" style="width: 255px; text-align: center;">Maxsulot</th>
+                    <th scope="col" style="text-align: center;">Kelgan narx</th>
+                    <th scope="col" style="text-align: center;">Miqdor</th>
+                    <th scope="col" style="text-align: center;">Jami (so'm)</th>
+                    <th scope="col" style="text-align: center;">Sana</th>
+                    <th scope="col" style="text-align: center;">Xodim</th>
+                    <th scope="col" style="text-align: center;">Imkoniyatlar</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for import_product in import_products %}
+                <tr>
+                    <th scope="row">{{forloop.counter}}</th>
+                    <td>{{ import_product.product.name }}</td>
+                    <td>{{ import_product.buy_price|floatformat:2 }}</td>
+                    <td>{{ import_product.quantity }}</td>
+                    <td>{{ import_product.total_price|floatformat:2 }}</td>
+                    <td>{{ import_product.created_at }}</td>
+                    <td>{{ import_product.user.first_name }}</td>
+                    <td>
+                        <a href="{% url 'edit-imports' import_product.id %}">
+                            <button type="submit" class="btn btn-warning" data-toggle="modal">Tahrirlash</button>
+                        </a>
+                        <a href="{% url 'delete-imports' import_product.id %}">
+                            <button type="button" class="btn btn-danger">O'chirish</button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="myModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-dark">
+                <h4 class="modal-title">Yangi mahsulot</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <form method="post" id="new-product-form">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label>Mahsulot:</label>
+                    <select name="product_id" id="product" class="form-control">
+                        {% for product in products %}
+                        <option value="{{ product.id }}">
+                            {{ product.name }} ({{ product.quantity }} {{ product.unit }} mavjud!)
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <label>Miqdori:</label>
+                    <input type="number" name="quantity" id="new-yarmi-amount"
+                           class="form-control" value="0">
+                    <br>
+                    <label>Sotib olingan narx:</label>
+                    <input type="number" name="buy_price" value="0" id="new-product-brend"
+                           class="form-control">
+                    <br>
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Qo`shish</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+{% endblock %}
+

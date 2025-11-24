@@ -16,6 +16,9 @@ class ImportProduct(models.Model):
     def __str__(self):
         return f'{self.product.name} - {self.buy_price}'
 
+    def total_price(self):
+        return self.buy_price * self.quantity
+
 
 class Sale(models.Model):
     quantity = models.FloatField(default=0)
@@ -38,6 +41,7 @@ class PayDebt(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     price = models.FloatField(default=0)
     description = models.TextField(blank=True, null=True)
+
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)

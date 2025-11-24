@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %} {{ warning_title }} {% endblock %}
+{% block page %} {{ warning_title }} {% endblock %}
+
+{% block content %}
+<div class="warning-box">
+    <p>{{ warning_message }}</p>
+    <a href="{% url back_url %}">
+        <button class="btn btn-secondary">Ortga</button>
+    </a>
+</div>
+
+<style>
+    .warning-box {
+        margin: 20px auto;       /* tashqi bo'shliq */
+        padding: 20px;           /* ichki bo'shliq */
+        border-radius: 12px;     /* yumaloq burchaklar */
+        background: #f8f9fa;     /* engil kulrang fon */
+        border: 1px solid #ddd;  /* ingichka chiziq */
+        max-width: 500px;        /* o‘rtacha kenglik */
+        text-align: center;      /* ichidagi elementlarni markazlash */
+    }
+
+    .warning-box p {
+        font-size: 18px;
+        margin-bottom: 15px;
+    }
+</style>
+
+{% endblock %}

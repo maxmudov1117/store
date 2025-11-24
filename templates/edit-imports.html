@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %} Kirimlar tarixi {% endblock %}
+{% block page %} Kirimlar tarixi {% endblock %}
+{% block import_product_active %} active {% endblock %}
+{% block content %}
+<!-- Modal body -->
+<form method="post" id="edit-product-form" style="margin: 20px;">
+    {% csrf_token %}
+    <label>Maxsulot:</label>
+    <select name="product_id" id="product" class="form-control">
+        {% for product in products %}
+        <option value="{{ product.id }}" {% if product.id == import_product.product.id %}selected{% endif %}>
+            {{ product.name }} ({{ product.quantity }} {{ product.unit }} mavjud!)
+        </option>
+
+        {% endfor %}
+    </select>
+    <br>
+    <label>Kelgan narx:</label>
+    <input type="text" name="buy_price" value="{{import_product.buy_price}}"
+           id="edit-product-brend" class="form-control" required>
+    <br>
+    <label>Miqdor:</label>
+    <input type="text" name="quantity" value="{{import_product.quantity}}"
+           id="edit-product-price" class="form-control" required>
+    <br>
+
+    <!-- Modal footer -->
+    <button type="submit" class="btn btn-success">Yangilash</button>
+    <a href="{% url 'imports' %}">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
+    </a>
+
+</form>
+
+{% endblock %}
