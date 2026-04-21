@@ -1,126 +1,227 @@
 {% extends 'base.html' %}
-{% block title %} Sotuvlar {% endblock %}
-{% block page %} Sotuvlar {% endblock %}
-{% block sale_active %} active {% endblock %}
+{% load humanize %}
+{% block title %}Sotuvlar{% endblock %}
+{% block page %}Sotuvlar{% endblock %}
+{% block sale_active %}active{% endblock %}
 
 {% block content %}
-<!-- /.content-header -->
-<div class="col-md-12">
-    <div class="card card-dark">
-        <div class="card-header border-0">
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Sotuv
-                    qo'shish
-                </button>
-            </div>
+
+<div class="card animate-slide-up">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-shopping-cart"></i>
+            Sotuvlar tarixi
         </div>
-        <div class="card-body">
-            <table class="table" style="text-align: center;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <a href="{% url 'export-sales' %}{% if date_from or date_to %}?date_from={{ date_from }}&date_to={{ date_to }}{% endif %}" class="btn btn-ghost btn-sm" title="Excel ga eksport">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
+                <i class="fas fa-plus"></i> Sotuv qo'shish
+            </button>
+        </div>
+    </div>
+
+    <!-- Search & Date Filter -->
+    <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+        <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 180px;">
+                <input type="text" name="search" value="{{ search }}" placeholder="Mahsulot yoki mijoz qidirish..." class="form-control">
+            </div>
+            <div>
+                <input type="date" name="date_from" value="{{ date_from }}" class="form-control" placeholder="Dan" title="Boshlanish sanasi">
+            </div>
+            <div>
+                <input type="date" name="date_to" value="{{ date_to }}" class="form-control" placeholder="Gacha" title="Tugash sanasi">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Qidirish</button>
+            {% if search or date_from or date_to %}
+            <a href="{% url 'sales' %}" class="btn btn-ghost btn-sm"><i class="fas fa-times"></i> Tozalash</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="card-body-flush">
+        <div class="table-responsive">
+            <table class="data-table">
                 <thead>
-                <tr>
-                    <th scope="col" style="width: 15px">T/r</th>
-                    <th scope="col" style="width: 255px; text-align: center;">Maxsulot</th>
-                    <th scope="col" style="text-align: center;">Mijoz ism</th>
-                    <th scope="col" style="text-align: center;">Do'kon nomi</th>
-                    <th scope="col" style="text-align: center;">Miqdori</th>
-                    <th scope="col" style="text-align: center;">Jami</th>
-                    <th scope="col" style="text-align: center;">To'landi</th>
-                    <th scope="col" style="text-align: center;">Qoldi</th>
-                    <th scope="col" style="text-align: center;">Xodim</th>
-                    <th scope="col" style="text-align: center;">Imkoniyatlar</th>
-                </tr>
+                    <tr>
+                        <th style="width: 50px;">T/r</th>
+                        <th>Mahsulot</th>
+                        <th>Mijoz</th>
+                        <th>Do'kon</th>
+                        <th>Miqdori</th>
+                        <th>Jami</th>
+                        <th>To'landi</th>
+                        <th>Qoldi</th>
+                        <th>Xodim</th>
+                        <th style="width: 100px;">Amallar</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for sale in sales %}
-                <tr>
-                    <th scope="row">{{forloop.counter}}</th>
-                    <td>{{ sale.product.name }}</td>
-                    <td>{{ sale.client.name }}</td>
-                    <td>{{ sale.client.shop_name }}</td>
-                    <td>{{ sale.quantity }}</td>
-                    <td>{{ sale.total_price|floatformat:2 }} so'm</td>
-                    <td>{{ sale.paid_price|floatformat:2 }} so'm </td>
-                    <td>{{ sale.debt_price|floatformat:2 }} so'm </td>
-                    <td>{{ sale.user.first_name }}</td>
-                    <td>
-                        <a href="{% url 'edit-sale' sale.id %}">
-                            <button type="submit" class="btn btn-warning" data-toggle="modal">Tahrirlash</button>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
+                    {% for sale in sales %}
+                    <tr>
+                        <td class="row-number">{{ forloop.counter }}</td>
+                        <td class="fw-600">{{ sale.product.name }}</td>
+                        <td>{{ sale.client.name }}</td>
+                        <td>{{ sale.client.shop_name }}</td>
+                        <td>{{ sale.quantity }}</td>
+                        <td class="money">{{ sale.total_price|intcomma }} <span class="text-muted">so'm</span></td>
+                        <td class="money text-success">{{ sale.paid_price|intcomma }} <span class="text-muted">so'm</span></td>
+                        <td class="money {% if sale.debt_price > 0 %}text-danger{% endif %}">{{ sale.debt_price|intcomma }} <span class="text-muted">so'm</span></td>
+                        <td>{{ sale.user.first_name }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'download-invoice' sale.id %}" class="btn btn-icon btn-icon-info" title="Chekni yuklab olish">
+                                    <i class="fas fa-print"></i>
+                                </a>
+                                <a href="{% url 'edit-sale' sale.id %}" class="btn btn-icon btn-icon-warning" title="Tahrirlash">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="{% url 'delete-sale' sale.id %}" class="btn btn-icon btn-icon-danger" title="O'chirish">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <i class="fas fa-shopping-cart"></i>
+                                <h3>Sotuvlar topilmadi</h3>
+                                <p>{% if search or date_from %}Qidiruv natijasi bo'sh{% else %}Yangi sotuv qo'shish uchun yuqoridagi tugmani bosing{% endif %}</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-ghost btn-sm">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="btn btn-primary btn-sm">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-ghost btn-sm">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-ghost btn-sm">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 
-<!-- The Modal -->
-<div class="modal" id="myModal">
-    <div class="modal-dialog">
+<!-- Add Sale Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
-
-            <!-- Modal Header -->
             <div class="modal-header bg-dark">
-                <h4 class="modal-title">Yangi mahsulot</h4>
+                <h4 class="modal-title"><i class="fas fa-plus-circle" style="margin-right:8px; color: var(--accent-primary);"></i>Yangi sotuv</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-
-            <!-- Modal body -->
-            <form method="post" id="new-product-form">
+            <form method="post">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <label>Mahsulot:</label>
-                    <select name="product_id" id="product" class="form-control">
-                        {% for product in products %}
-                        <option value="{{ product.id }}">
-                            {{ product.name }} ({{ product.quantity }} {{ product.unit }} mavjud!)
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <br>
-                    <label>Miqdor:</label>
-                    <input type="number" name="quantity" value="0" id="new-product-brend"
-                           class="form-control">
-                    <br>
-                    <label>Mijoz:</label>
-                    <select name="client_id" id="client" class="form-control">
-                        {% for client in clients %}
-                        <option value="{{ client.id }}">
-                            {{ client.name }} {{ client.shop_name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <br>
-                    <label>Jami:</label>
-                    <input type="number" name="total_price" id="new-yarmi-amount"
-                           class="form-control" value="0">
-                    <br>
-                    <label>To'landi:</label>
-                    <input type="number" name="paid_price" id="new-jami-amount"
-                           class="form-control" value="0">
-                    <br>
-                    <label>Qoldi:</label>
-                    <input type="number" name="debt_price" id="new-product-amount"
-                           class="form-control" value="0">
-                    <br>
-
-
+                    <div class="form-group">
+                        <label class="form-label">Mahsulot</label>
+                        <select name="product_id" class="form-control" required>
+                            {% for product in products %}
+                            <option value="{{ product.id }}">{{ product.name }} ({{ product.quantity }} {{ product.unit }} mavjud)</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Miqdor</label>
+                        <input type="number" name="quantity" class="form-control" value="0" step="any" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Mijoz</label>
+                        <select name="client_id" class="form-control" required>
+                            {% for client in clients %}
+                            <option value="{{ client.id }}">{{ client.name }} — {{ client.shop_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Jami summa</label>
+                        <input type="number" name="total_price" class="form-control" value="0" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">To'landi</label>
+                        <input type="number" name="paid_price" class="form-control" value="0" step="any">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Qoldi (qarz)</label>
+                        <input type="number" name="debt_price" class="form-control" value="0" step="any">
+                    </div>
                 </div>
-
-                <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Qo`shish</button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
+                    <button type="button" class="btn btn-ghost" data-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Qo'shish</button>
                 </div>
             </form>
-
         </div>
     </div>
 </div>
-<!-- ./wrapper -->
-
-<!-- REQUIRED SCRIPTS -->
 
 {% endblock %}
 
+{% block extra_js %}
+{% if auto_download_id %}
+<!-- Success Receipt Modal -->
+<div class="modal fade" id="successReceiptModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content glass-card" style="border: 2px solid var(--color-success);">
+            <div class="modal-body" style="text-align: center; padding: 40px 20px;">
+                <div style="width: 80px; height: 80px; background: rgba(16, 185, 129, 0.1); color: var(--color-success); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2.5rem; animation: pulse-success 2s infinite;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 style="margin-bottom: 10px;">Sotuv muvaffaqiyatli yakunlandi!</h3>
+                <p class="text-muted" style="margin-bottom: 30px;">Chekni chiqarish yoki yuklab olish uchun quyidagi tugmani bosing.</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <a href="{% url 'download-invoice' auto_download_id %}" target="_blank" class="btn btn-success btn-lg" id="printReceiptBtn">
+                        <i class="fas fa-print"></i> Chekni yuklab olish
+                    </a>
+                    <button type="button" class="btn btn-ghost" data-dismiss="modal">Yopish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse-success {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+</style>
+
+<script>
+    window.onload = function() {
+        $('#successReceiptModal').modal('show');
+        
+        // When clicking print, close the modal after a short delay
+        document.getElementById('printReceiptBtn').addEventListener('click', function() {
+            setTimeout(function() {
+                $('#successReceiptModal').modal('hide');
+            }, 1000);
+        });
+    };
+</script>
+{% endif %}
+{% endblock %}

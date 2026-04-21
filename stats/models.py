@@ -45,3 +45,24 @@ class PayDebt(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateField(auto_now_add=True)
+
+
+class Expense(models.Model):
+    CATEGORY_CHOICES = [
+        ('ijara', 'Ijara'),
+        ('oylik', 'Oylik'),
+        ('oziq-ovqat', 'Oziq-ovqat'),
+        ('transport', 'Transport'),
+        ('boshqa', 'Boshqa'),
+    ]
+    
+    amount = models.FloatField(default=0)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
+    description = models.TextField(blank=True, null=True)
+    date = models.DateField(auto_now_add=True)
+    
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.category} - {self.amount}"

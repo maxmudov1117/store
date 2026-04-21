@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% block title %}Xodimlar boshqaruvi{% endblock %}
+{% block page %}Xodimlar boshqaruvi{% endblock %}
+{% block staff_active %}active{% endblock %}
+
+{% block content %}
+<div class="card animate-slide-up">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-user-shield"></i>
+            Tizim xodimlari
+        </div>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
+            <i class="fas fa-plus"></i> Yangi xodim
+        </button>
+    </div>
+
+    <div class="card-body-flush">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>F.I.O</th>
+                        <th>Filial</th>
+                        <th>Roli</th>
+                        <th>Holat</th>
+                        <th style="width: 100px;">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr>
+                        <td class="fw-600">{{ u.username }}</td>
+                        <td>{{ u.first_name }} {{ u.last_name }}</td>
+                        <td>{{ u.branch.name|default:"-" }}</td>
+                        <td>
+                            {% if u.is_superuser %}
+                            <span class="badge badge-primary">Adminstrator</span>
+                            {% else %}
+                            <span class="badge badge-info">Sotuvchi</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.is_active %}
+                            <span class="text-success"><i class="fas fa-check-circle"></i> Faol</span>
+                            {% else %}
+                            <span class="text-danger"><i class="fas fa-times-circle"></i> Faol emas</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button type="button" class="btn btn-icon btn-icon-warning edit-btn" 
+                                    data-toggle="modal" data-target="#addModal"
+                                    data-id="{{ u.id }}" 
+                                    data-username="{{ u.username }}"
+                                    data-first_name="{{ u.first_name }}"
+                                    data-last_name="{{ u.last_name }}"
+                                    data-phone_number="{{ u.phone_number|default:'' }}"
+                                    data-branch="{{ u.branch.id|default:'' }}"
+                                    data-active="{{ u.is_active|yesno:'on,off' }}">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle"><i class="fas fa-plus"></i> Yangi xodim qo'shish</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="user_id" id="user_id">
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label>Foydalanuvchi nomi (Username)</label>
+                        <input type="text" name="username" id="id_username" class="form-control" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                            <label>Ism</label>
+                            <input type="text" name="first_name" id="id_first_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                            <label>Familiya</label>
+                            <input type="text" name="last_name" id="id_last_name" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                            <label>Parol</label>
+                            <input type="password" name="password" id="id_password" class="form-control" placeholder="O'zgartirmaslik uchun bo'sh qoldiring">
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                            <label>Telefon raqami</label>
+                            <input type="text" name="phone_number" id="id_phone_number" class="form-control" placeholder="+998 90 123 45 67">
+                        </div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>Ish joyi (Filial)</label>
+                        <select name="branch_id" id="id_branch" class="form-control" required>
+                            <option value=""> --- Filial tanlang --- </option>
+                            {% for b in branches %}
+                            <option value="{{ b.id }}">{{ b.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" name="is_active" class="custom-control-input" id="id_active" checked>
+                        <label class="custom-control-label" for="id_active">Hisob faol bo'lsin</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $('.edit-btn').click(function() {
+        const d = $(this).data();
+        $('#modalTitle').html('<i class="fas fa-pen"></i> Xodimni tahrirlash');
+        $('#user_id').val(d.id);
+        $('#id_username').val(d.username);
+        $('#id_first_name').val(d.first_name);
+        $('#id_last_name').val(d.last_name);
+        $('#id_phone_number').val(d.phone_number);
+        $('#id_branch').val(d.branch);
+        $('#id_active').prop('checked', d.active === 'on');
+        $('#id_password').attr('placeholder', "Parolni yangilash (bo'sh qolsa o'zgarmaydi)");
+    });
+
+    $('#addModal').on('hidden.bs.modal', function () {
+        $('#modalTitle').html('<i class="fas fa-plus"></i> Yangi xodim qo\'shish');
+        $('#user_id').val('');
+        $('form')[1].reset();
+    });
+</script>
+{% endblock %}

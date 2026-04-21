@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Filialni o'chirish{% endblock %}
+{% block page %}Admin / Filialni o'chirish{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <div class="card animate-scale-in">
+            <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                <div class="card-header-title text-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Filialni o'chirish
+                </div>
+            </div>
+            <div class="card-body" style="text-align: center; padding: 24px;">
+                <div style="font-size: 1.1rem; margin-bottom: 24px;">
+                    Siz chindan ham <strong>{{ branch.name }}</strong> filialini o'chirib tashlamoqchimisiz?
+                </div>
+                <div class="alert alert-danger" style="background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; font-size: 0.9rem; text-align: left;">
+                    <i class="fas fa-info-circle"></i> <strong>DIQQAT:</strong> Filial o'chirilsa, unga tegishli barcha mahsulotlar, sotuvlar va xodimlar ham tizimdan o'chib ketadi!
+                </div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="card-footer" style="display: flex; gap: 12px; justify-content: center; padding-bottom: 24px; border-top: none;">
+                    <a href="{% url 'branches' %}" class="btn btn-ghost">Bekor qilish</a>
+                    <button type="submit" class="btn btn-danger">Ha, o'chirilsin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,100 +1,153 @@
 {% extends 'base.html' %}
-{% block title %} Mijozlar {% endblock %}
-{% block page %} Mijozlar {% endblock %}
-{% block client_active %} active {% endblock %}
+{% load humanize %}
+{% block title %}Mijozlar{% endblock %}
+{% block page %}Mijozlar{% endblock %}
+{% block client_active %}active{% endblock %}
+
 {% block content %}
 
-<!-- /.content-header -->
-<div class="col-md-12">
-    <div class="card card-dark">
-        <div class="card-header border-0">
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Mijoz
-                    qo'shish
-                </button>
-            </div>
+<div class="card animate-slide-up">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-users"></i>
+            Mijozlar ro'yxati
         </div>
-        <div class="card-body">
-            <table class="table" style="text-align: center;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <a href="{% url 'export-clients' %}" class="btn btn-ghost btn-sm" title="Excel ga eksport">
+                <i class="fas fa-file-excel"></i> Excel
+            </a>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addModal">
+                <i class="fas fa-plus"></i> Mijoz qo'shish
+            </button>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color);">
+        <form method="get" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 200px;">
+                <input type="text" name="search" value="{{ search }}" placeholder="Ism, do'kon nomi yoki telefon qidirish..." class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Qidirish</button>
+            {% if search %}
+            <a href="{% url 'clients' %}" class="btn btn-ghost btn-sm"><i class="fas fa-times"></i> Tozalash</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="card-body-flush">
+        <div class="table-responsive">
+            <table class="data-table">
                 <thead>
-                <tr>
-                    <th scope="col" style="width: 15px">T/r</th>
-                    <th scope="col" style="width: 255px; text-align: center;">FIO</th>
-                    <th scope="col" style="text-align: center;">Do'kon nom</th>
-                    <th scope="col" style="text-align: center;">Telefon raqam</th>
-                    <th scope="col" style="text-align: center;">Manzili</th>
-                    <th scope="col" style="text-align: center;">Qarz</th>
-                    <th scope="col" style="text-align: center;">Imkoniyatlar</th>
-                </tr>
+                    <tr>
+                        <th style="width: 50px;">T/r</th>
+                        <th>FIO</th>
+                        <th>Do'kon nomi</th>
+                        <th>Telefon raqam</th>
+                        <th>Manzili</th>
+                        <th>Qarz</th>
+                        <th style="width: 100px;">Amallar</th>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for client in clients %}
-                <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{client.name}}</td>
-                    <td>{{ client.shop_name }}</td>
-                    <td>{{ client.phone_number }}</td>
-                    <td>{{ client.address }}</td>
-                    <td>{{ client.debt }}</td>
-                    <td>
-                        <a href="{% url 'edit-client' client.id %}">
-                            <button type="submit" class="btn btn-warning" data-toggle="modal">Tahrirlash</button>
-                        </a>
-                        <a href="{% url 'delete-client' client.id %}">
-                            <button type="button" class="btn btn-danger" data-toggle="modal">O'chirish</button>
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
+                    {% for client in clients %}
+                    <tr>
+                        <td class="row-number">{{ forloop.counter }}</td>
+                        <td class="fw-600">{{ client.name }}</td>
+                        <td>{{ client.shop_name }}</td>
+                        <td>{{ client.phone_number }}</td>
+                        <td>{{ client.address }}</td>
+                        <td class="money {% if client.debt > 0 %}text-danger{% else %}text-success{% endif %}">
+                            {{ client.debt|intcomma }} <span class="text-muted">so'm</span>
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <a href="{% url 'edit-client' client.id %}" class="btn btn-icon btn-icon-warning" title="Tahrirlash">
+                                    <i class="fas fa-pen"></i>
+                                </a>
+                                <a href="{% url 'delete-client' client.id %}" class="btn btn-icon btn-icon-danger" title="O'chirish">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <h3>Mijoz topilmadi</h3>
+                                <p>{% if search %}Qidiruv natijasi bo'sh{% else %}Yangi mijoz qo'shish uchun yuqoridagi tugmani bosing{% endif %}</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div style="padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; justify-content: center; gap: 6px; flex-wrap: wrap;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" class="btn btn-ghost btn-sm">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="btn btn-primary btn-sm">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}" class="btn btn-ghost btn-sm">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}" class="btn btn-ghost btn-sm">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 
-<div class="modal" id="myModal">
-    <div class="modal-dialog">
+<!-- Add Client Modal -->
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
-
-            <!-- Modal Header -->
             <div class="modal-header bg-dark">
-                <h4 class="modal-title">Yangi mijoz</h4>
+                <h4 class="modal-title"><i class="fas fa-user-plus" style="margin-right:8px; color: var(--accent-primary);"></i>Yangi mijoz</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-
-            <!-- Modal body -->
-            <form method="post" id="new-product-form">
+            <form method="post">
                 {% csrf_token %}
                 <div class="modal-body">
-                    <label for="new-product-name">FIO:</label>
-                    <input type="text" name="name" placeholder="Mijoz to'liq ismi..." id="new-product-name"
-                           class="form-control" required>
-                    <br>
-                    <label for="new-product-name">Do'kon nomi:</label>
-                    <input type="text" name="shop_name" placeholder="Do'kon nomi..." id="new-product-brend"
-                           class="form-control" required>
-                    <br>
-                    <label for="new-product-name">Telefon raqami:</label>
-                    <input type="text" name="phone_number" placeholder="Telefon raqami..." id="new-product-price"
-                           class="form-control">
-                    <br>
-                    <label for="new-product-name">Manzili:</label>
-                    <input type="text" name="address" placeholder="Mijoz manzili..." id="new-product-amount"
-                           class="form-control" required>
-                    <br>
-                    <label for="new-product-name">Qarzi:</label>
-                    <input type="text" name="debt" placeholder="Mijozning qarzi..." id="new-product-debt"
-                           class="form-control" required>
-                    <br>
+                    <div class="form-group">
+                        <label class="form-label">FIO</label>
+                        <input type="text" name="name" placeholder="Mijoz to'liq ismi..." class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Do'kon nomi</label>
+                        <input type="text" name="shop_name" placeholder="Do'kon nomi..." class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefon raqami</label>
+                        <input type="text" name="phone_number" placeholder="+998 90 123 45 67" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Manzili</label>
+                        <input type="text" name="address" placeholder="Mijoz manzili..." class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Qarzi</label>
+                        <input type="number" name="debt" placeholder="0" class="form-control" value="0" step="any">
+                    </div>
                 </div>
-
-                <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Qo`shish</button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
+                    <button type="button" class="btn btn-ghost" data-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Qo'shish</button>
                 </div>
             </form>
-
         </div>
     </div>
 </div>

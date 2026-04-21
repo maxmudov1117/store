@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Sotuvni o'chirish{% endblock %}
+{% block page %}Sotuvni o'chirish{% endblock %}
+{% block sale_active %}active{% endblock %}
+
+{% block content %}
+
+<div class="delete-confirm-box animate-slide-up">
+    <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: var(--color-danger); margin-bottom: 16px;"></i>
+    <h3>O'chirishni tasdiqlang</h3>
+    <p>
+        "<strong>{{ sale.product.name }}</strong>" — {{ sale.client.name }} ga {{ sale.quantity }} dona sotilgan sotuvni o'chirmoqchimisiz?<br>
+        <span style="font-size: 0.85rem; color: var(--color-warning);">
+            <i class="fas fa-info-circle"></i> Mahsulot miqdori qaytariladi va mijoz qarzi kamayadi.
+        </span><br>
+        <span style="font-size: 0.82rem;">Bu amalni qaytarib bo'lmaydi.</span>
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="btn-group">
+            <a href="{% url 'sales' %}" class="btn btn-ghost">Bekor qilish</a>
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> O'chirish</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

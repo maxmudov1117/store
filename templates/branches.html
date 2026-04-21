@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Filiallar boshqaruvi{% endblock %}
+{% block page %}Admin / Filiallar{% endblock %}
+{% block branch_active %}active{% endblock %}
+
+{% block content %}
+<div class="card animate-slide-up">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-store"></i>
+            Mavjud filiallar
+        </div>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#branchModal">
+            <i class="fas fa-plus"></i> Yangi filial
+        </button>
+    </div>
+
+    <div class="card-body-flush">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">T/r</th>
+                        <th>Nomi</th>
+                        <th>Ma'lumot</th>
+                        <th>Yaratilgan sana</th>
+                        <th style="width: 100px;">Amallar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for b in branches %}
+                    <tr>
+                        <td class="row-number">{{ forloop.counter }}</td>
+                        <td class="fw-600">{{ b.name }}</td>
+                        <td>{{ b.info|truncatechars:100 }}</td>
+                        <td style="color: var(--text-muted);">{{ b.created_at }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button type="button" class="btn btn-icon btn-icon-warning edit-branch-btn" 
+                                    data-toggle="modal" data-target="#branchModal"
+                                    data-id="{{ b.id }}" 
+                                    data-name="{{ b.name }}"
+                                    data-info="{{ b.info }}">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <a href="{% url 'delete-branch' b.id %}" class="btn btn-icon btn-icon-danger" title="O'chirish">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="fas fa-store"></i>
+                                <h3>Filiallar mavjud emas</h3>
+                                <p>Hozircha hech qanday filial qo'shilmagan.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="branchModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h5 class="modal-title" id="branchModalTitle"><i class="fas fa-plus"></i> Yangi filial qo'shish</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="branch_id" id="branch_id">
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label class="form-label">Filial nomi</label>
+                        <input type="text" name="name" id="branch_name" class="form-control" placeholder="Masalan: Markaziy filial" required>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label">Qo'shimcha ma'lumot</label>
+                        <textarea name="info" id="branch_info" class="form-control" rows="3" placeholder="Manzil yoki telefon raqami..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost" data-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $('.edit-branch-btn').click(function() {
+        const d = $(this).data();
+        $('#branchModalTitle').html('<i class="fas fa-pen"></i> Filialni tahrirlash');
+        $('#branch_id').val(d.id);
+        $('#branch_name').val(d.name);
+        $('#branch_info').val(d.info);
+    });
+
+    $('#branchModal').on('hidden.bs.modal', function () {
+        $('#branchModalTitle').html('<i class="fas fa-plus"></i> Yangi filial qo\'shish');
+        $('#branch_id').val('');
+        $('form')[0].reset();
+    });
+</script>
+{% endblock %}

@@ -1,161 +1,208 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sections</title>
-  <style>
-    /* FONT — Sof, zamonaviy */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Dashboard{% endblock %}
+{% block page %}Dashboard{% endblock %}
+{% block home_active %}active{% endblock %}
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
+{% block content %}
 
-    body {
-      background-color: #f9f9f9;
-      color: #222;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+<!-- Stat Cards -->
+<div class="stats-grid">
+    <div class="stat-card accent-blue">
+        <div class="stat-card-header">
+            <span class="stat-card-label">Mahsulotlar</span>
+            <div class="stat-card-icon"><i class="fas fa-box-open"></i></div>
+        </div>
+        <div class="stat-card-value">{{ total_products|default:"0" }}</div>
+        <div class="stat-card-sub">Jami mahsulot turlari</div>
+    </div>
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 60px;
-      border-bottom: 1px solid #e5e5e5;
-      background-color: #fff;
-    }
+    <div class="stat-card accent-success">
+        <div class="stat-card-header">
+            <span class="stat-card-label">Mijozlar</span>
+            <div class="stat-card-icon"><i class="fas fa-users"></i></div>
+        </div>
+        <div class="stat-card-value">{{ total_clients|default:"0" }}</div>
+        <div class="stat-card-sub">Jami mijozlar soni</div>
+    </div>
 
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
+    <div class="stat-card accent-warning">
+        <div class="stat-card-header">
+            <span class="stat-card-label">Bugungi sotuvlar</span>
+            <div class="stat-card-icon"><i class="fas fa-shopping-cart"></i></div>
+        </div>
+        <div class="stat-card-value">{{ today_sales_total|default:"0"|intcomma }}</div>
+        <div class="stat-card-sub">{{ today_sales_count|default:"0" }} ta sotuv</div>
+    </div>
 
-    nav {
-      display: flex;
-      gap: 25px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+    <div class="stat-card accent-info">
+        <div class="stat-card-header">
+            <span class="stat-card-label">Jami qarz</span>
+            <div class="stat-card-icon"><i class="fas fa-exclamation-triangle"></i></div>
+        </div>
+        <div class="stat-card-value">{{ total_debt|default:"0"|intcomma }}</div>
+        <div class="stat-card-sub">so'm umumiy qarzdorlik</div>
+    </div>
 
-    nav a {
-      text-decoration: none;
-      color: #444;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
+    <div class="stat-card accent-secondary">
+        <div class="stat-card-header">
+            <span class="stat-card-label">Ombor qiymati</span>
+            <div class="stat-card-icon"><i class="fas fa-warehouse"></i></div>
+        </div>
+        <div class="stat-card-value">{{ stock_value|default:"0"|intcomma }}</div>
+        <div class="stat-card-sub">so'm tovarlar qiymati</div>
+    </div>
+</div>
 
-    nav a:hover {
-      color: #007aff;
-    }
+<!-- Sales Chart Section -->
+<div class="card animate-slide-up" style="margin-bottom: 24px;">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-chart-line"></i>
+            Oxirgi 30 kunlik sotuvlar statistikasi
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="salesChart" style="min-height: 350px;"></div>
+    </div>
+</div>
 
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 20px;
-    }
+<!-- Quick Actions -->
+<h3 style="font-size: 1rem; margin-bottom: 16px; color: var(--text-secondary); font-weight: 600;">
+    <i class="fas fa-bolt" style="color: var(--color-warning); margin-right: 6px;"></i>Tez harakatlar
+</h3>
+<div class="quick-actions-grid">
+    <a href="{% url 'products' %}" class="quick-action-card">
+        <i class="fas fa-box-open"></i>
+        <span>Mahsulotlar</span>
+    </a>
+    <a href="{% url 'clients' %}" class="quick-action-card">
+        <i class="fas fa-users"></i>
+        <span>Mijozlar ro'yxati</span>
+    </a>
+    <a href="{% url 'sales' %}" class="quick-action-card">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Sotuvlar tarixi</span>
+    </a>
+    <a href="{% url 'imports' %}" class="quick-action-card">
+        <i class="fas fa-truck-loading"></i>
+        <span>Kirimlar tarixi</span>
+    </a>
+    <a href="{% url 'pay-debts' %}" class="quick-action-card">
+        <i class="fas fa-hand-holding-usd"></i>
+        <span>Qarz to'lash</span>
+    </a>
+    <a href="/admin/" class="quick-action-card">
+        <i class="fas fa-cog"></i>
+        <span>Admin Panel</span>
+    </a>
+</div>
 
-    .button-container {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      width: 100%;
-      max-width: 800px;
-    }
+<!-- Recent Sales -->
+{% if recent_sales %}
+<div class="card recent-table-card">
+    <div class="card-header">
+        <div class="card-header-title">
+            <i class="fas fa-clock"></i>
+            Oxirgi sotuvlar
+        </div>
+        <a href="{% url 'sales' %}" class="btn btn-ghost btn-sm">
+            Barchasini ko'rish <i class="fas fa-arrow-right" style="font-size: 0.7rem;"></i>
+        </a>
+    </div>
+    <div class="card-body-flush">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Mahsulot</th>
+                        <th>Mijoz</th>
+                        <th>Miqdori</th>
+                        <th>Jami</th>
+                        <th>Sana</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_sales %}
+                    <tr>
+                        <td>{{ sale.product.name }}</td>
+                        <td>{{ sale.client.name }}</td>
+                        <td>{{ sale.quantity }}</td>
+                        <td class="money">{{ sale.total_price|intcomma }} so'm</td>
+                        <td style="color: var(--text-muted);">{{ sale.created_at }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
 
-    .button {
-      display: block;
-      text-decoration: none;
-      background-color: #fff;
-      color: #222;
-      padding: 22px 0; /* kattaroq balandlik */
-      text-align: center;
-      border-radius: 12px; /* yumaloqroq burchaklar */
-      border: 1px solid #ddd;
-      transition: all 0.25s ease;
-      font-size: 1.15rem; /* biroz kattaroq matn */
-      font-weight: 500;
-    }
+{% endblock %}
 
-    .button:hover {
-      border-color: #007aff;
-      color: #007aff;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
-      transform: translateY(-3px);
-    }
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    var options = {
+        series: [{
+            name: 'Sotuv summasi',
+            data: {{ chart_data|safe }}
+        }],
+        chart: {
+            type: 'area',
+            height: 350,
+            toolbar: { show: false },
+            zoom: { enabled: false },
+            background: 'transparent',
+            foreColor: '#94a3b8'
+        },
+        colors: ['#3b82f6'],
+        theme: { mode: 'dark' },
+        stroke: {
+            curve: 'smooth',
+            width: 3
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.45,
+                opacityTo: 0.05,
+                stops: [20, 100]
+            }
+        },
+        dataLabels: { enabled: false },
+        xaxis: {
+            categories: {{ chart_labels|safe }},
+            axisBorder: { show: false },
+            axisTicks: { show: false }
+        },
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return val.toLocaleString() + " so'm";
+                }
+            }
+        },
+        grid: {
+            borderColor: '#1e293b',
+            strokeDashArray: 4
+        },
+        tooltip: {
+            theme: 'dark',
+            x: { show: true },
+            y: {
+                formatter: function (val) {
+                    return val.toLocaleString() + " so'm";
+                }
+            }
+        }
+    };
 
-    footer {
-      text-align: center;
-      padding: 18px 0;
-      color: #888;
-      font-size: 0.9rem;
-      border-top: 1px solid #e5e5e5;
-      background-color: #fff;
-    }
-
-    /* Responsive moslashtirish */
-    @media (max-width: 800px) {
-      .button-container {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 600px;
-      }
-    }
-
-    @media (max-width: 500px) {
-      .button-container {
-        grid-template-columns: 1fr;
-        max-width: 350px;
-      }
-
-      header {
-        flex-direction: column;
-        gap: 10px;
-        padding: 15px 20px;
-      }
-
-      nav {
-        gap: 15px;
-      }
-    }
-  </style>
-</head>
-<body>
-
-<header>
-  <h1>Sections</h1>
-  <nav>
-    <a href="{% url 'products' %}">Mahsulotlar</a>
-    <a href="{% url 'clients' %}">Mijozlar</a>
-    <a href="{% url 'sales' %}">Sotuvlar</a>
-    <a href="{% url 'imports' %}">Kirimlar</a>
-    <a href="#">Qarzlar</a>
-    <a href="/admin/">Admin</a>
-  </nav>
-</header>
-
-<main>
-  <div class="button-container">
-    <a href="{% url 'products' %}" class="button">Mahsulotlar</a>
-    <a href="{% url 'clients' %}" class="button">Mijozlar ro'yxati</a>
-    <a href="{% url 'sales' %}" class="button">Sotuvlar tarixi</a>
-    <a href="{% url 'imports' %}" class="button">Kirimlar tarixi</a>
-    <a href="#" class="button">To'langan qarzlar</a>
-    <a href="/admin/" class="button">Admin Panel</a>
-  </div>
-</main>
-
-<footer>
-  © 2025 Bekmurod Maxmudov tomonidan yaratilgan.
-</footer>
-
-</body>
-</html>
+    var chart = new ApexCharts(document.querySelector("#salesChart"), options);
+    chart.render();
+});
+</script>
+{% endblock %}

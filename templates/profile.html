@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Mening profilim{% endblock %}
+{% block page %}Profil{% endblock %}
+{% block profile_active %}active{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <div class="card-header-title">
+                    <i class="fas fa-user-circle"></i>
+                    Profil ma'lumotlari
+                </div>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="width: 100px; height: 100px; background: var(--hover-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 2.5rem; color: var(--color-primary);">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4 style="margin-bottom: 5px;">{{ user.username }}</h4>
+                        <p class="text-muted">{% if user.is_superuser %}Adminstrator{% else %}Sotuvchi{% endif %} | {{ user.branch.name|default:"Filial yo'q" }}</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group mb-3">
+                            <label class="form-label">Ism</label>
+                            <input type="text" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 form-group mb-3">
+                            <label class="form-label">Familiya</label>
+                            <input type="text" name="last_name" value="{{ user.last_name }}" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Telefon raqami</label>
+                        <input type="text" name="phone_number" value="{{ user.phone_number|default:'' }}" class="form-control" placeholder="+998 90 123 45 67">
+                    </div>
+
+                    <hr style="border-color: var(--border-color); margin: 24px 0;">
+                    <h5 style="margin-bottom: 15px; font-size: 0.95rem;"><i class="fas fa-lock"></i> Xavfsizlik</h5>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label">Yangi parol</label>
+                        <input type="password" name="new_password" class="form-control" placeholder="O'zgartirmaslik uchun bo'sh qoldiring">
+                        <small class="text-muted">Parolni o'zgartirsangiz, tizimga qayta kirishingiz shart emas.</small>
+                    </div>
+                </div>
+                <div class="card-footer" style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="submit" class="btn btn-primary">Ma'lumotlarni yangilash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

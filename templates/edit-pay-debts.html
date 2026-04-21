@@ -1,35 +1,41 @@
 {% extends 'base.html' %}
-{% block title %} To'langan qarzlar {% endblock %}
-{% block page %} To'langan qarzlar {% endblock %}
-{% block pad_debt_active %} active {% endblock %}
+{% block title %}Qarz to'lovni tahrirlash{% endblock %}
+{% block page %}Qarz to'lovni tahrirlash{% endblock %}
+{% block pad_debt_active %}active{% endblock %}
+
 {% block content %}
-<!-- Modal body -->
-<form method="post" id="edit-product-form" style="margin: 20px;">
-    {% csrf_token %}
-    <label>Mijozlar:</label>
-    <select name="client_id" id="client" class="form-control">
-        {% for client in clients %}
-        <option value="{{ client.id }}" {% if client.id == pay_debt.client.id %}selected{% endif %}>
-            {{ client.name }} - {{ client.shop_name }} - {{ client.price }} mavjud!)
-        </option>
 
-        {% endfor %}
-    </select>
-    <br>
-    <label>Qarz:</label>
-    <input type="number" name="price" value="{{ pay_debt.price }}" id="new-product-brend"
-           class="form-control">
-    <br>
-    <br>
-    <label>Batafsil:</label>
-    <input type="text" name="description" id="new-yarmi-amount"
-           class="form-control" value="{{ pay_debt.description }}">
-    <br>
-    <button type="submit" class="btn btn-success">Yangilash</button>
-    <a href="{% url 'pay-debts' %}">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
-    </a>
-
-</form>
+<div class="edit-form-container animate-slide-up">
+    <div class="edit-form-header">
+        <h3><i class="fas fa-pen"></i> Qarz to'lovni tahrirlash</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="edit-form-body">
+            <div class="form-group">
+                <label class="form-label">Mijoz</label>
+                <select name="client_id" class="form-control" required>
+                    {% for client in clients %}
+                    <option value="{{ client.id }}" {% if client.id == pay_debt.client.id %}selected{% endif %}>
+                        {{ client.name }} — {{ client.shop_name }} — {{ client.debt|floatformat:0 }} so'm qarz
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">To'lanadigan qarz</label>
+                <input type="number" name="price" value="{{ pay_debt.price }}" class="form-control" step="any" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Batafsil (izoh)</label>
+                <input type="text" name="description" value="{{ pay_debt.description }}" class="form-control">
+            </div>
+        </div>
+        <div class="edit-form-footer">
+            <a href="{% url 'pay-debts' %}" class="btn btn-ghost">Bekor qilish</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Saqlash</button>
+        </div>
+    </form>
+</div>
 
 {% endblock %}

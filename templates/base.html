@@ -1,158 +1,198 @@
 <!DOCTYPE html>
-{% load  static %}
-<html lang="en">
+{% load static %}
+<html lang="uz">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %} {% endblock %}</title>
+    <title>{% block title %}Store{% endblock %} — Do'kon Boshqaruvi</title>
 
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
-    <!-- IonIcons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Custom Theme CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+
+    {% block extra_css %}{% endblock %}
 </head>
+<body>
 
-<body class="hold-transition sidebar-mini">
+<div class="app-wrapper">
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<div class="wrapper">
-    <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-        <!-- Left navbar links -->
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-            </li>
-            <li class="nav-item d-none d-sm-inline-block">
-                <a href="{% url 'home' %}" class="nav-link">Bosh sahifa</a>
-            </li>
-        </ul>
-
-        <!-- Right navbar links -->
-        <ul class="navbar-nav ml-auto">
-            <!-- Navbar Search -->
-
-        </ul>
-    </nav>
-    <!-- /.navbar -->
-
-    <!-- Main Sidebar Container -->
-    <aside class="main-sidebar sidebar-dark-primary elevation-4">
-        <!-- Brand Logo -->
-        <a href="{% url 'home' %}" class="brand-link">
-            <img src="{% static 'dist/img/brand.jpg' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
-                 style="opacity: .8">
-            <span class="brand-text font-weight-light">{% if branch %} {{ branch.name }} {% else %} Bo'lim mavjud emas {% endif %}</span>
-        </a>
-
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <!-- Sidebar user panel (optional) -->
-            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                <div class="image">
-                    <img src="{% static 'dist/img/user.png' %}" class="img-circle elevation-2" alt="User Image">
-                </div>
-                <div class="info">
-                    <a href="#" class="d-block">{% if user.get_full_name %} {{ user.get_full_name }} {% else %} {{ user.username }} {% endif %}</a>
-                </div>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <i class="fas fa-store"></i>
             </div>
-
-            <!-- Sidebar Menu -->
-            <nav class="mt-2">
-                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                    data-accordion="false">
-                    <li class="nav-header">Menu</li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon far fa-circle text-warning"></i>
-                            <p>Statistics</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{% url 'sales' %}" class="nav-link {% block sale_active %}{% endblock %} ">
-                            <i class="nav-icon far fa-circle text-danger"></i>
-                            <p class="text">Sotuvlar</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{% url 'products' %}" class="nav-link {% block product_active %}{% endblock %}">
-                            <i class="nav-icon far fa-circle text-red"></i>   <!-- o'zgartirildi -->
-                            <p class="text">Maxsulotlar</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{% url 'clients' %}" class="nav-link {% block client_active %}{% endblock %}">
-                            <i class="nav-icon far fa-circle text-info"></i>
-                            <p>Mijozlar</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{% url 'imports' %}" class="nav-link {% block import_product_active %}{% endblock %}">
-                            <i class="nav-icon far fa-circle text-success"></i>  <!-- o'zgartirildi -->
-                            <p class="text">Kirimlar tarixi</p>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a href="{% url 'pay-debts' %}" class="nav-link {% block pad_debt_active %} {% endblock %}">
-                            <i class="nav-icon far fa-circle text-purple"></i>   <!-- o'zgartirildi -->
-                            <p class="text">To'langan qarzlar</p>
-                        </a>
-                    </li>
-
-                </ul>
-            </nav>
-            <!-- /.sidebar-menu -->
+            <div>
+                <div class="sidebar-brand-text">BekMax</div>
+                <div class="sidebar-brand-sub">{{ branch.name|default:"Boshqaruv Tizimi" }}</div>
+            </div>
         </div>
-        <!-- /.sidebar -->
+
+        <!-- User Panel -->
+        <div class="sidebar-user">
+            <div class="sidebar-user-avatar">
+                {% if user.first_name %}
+                    {{ user.first_name|first|upper }}
+                {% else %}
+                    {{ user.username|first|upper }}
+                {% endif %}
+            </div>
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name">{% if user.get_full_name %}{{ user.get_full_name }}{% else %}{{ user.username }}{% endif %}</div>
+                <div class="sidebar-user-role">Xodim</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+            <div class="sidebar-nav-label">Asosiy</div>
+            <ul style="list-style:none; padding:0; margin:0;">
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'home' %}" class="sidebar-nav-link {% block home_active %}{% endblock %}">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-nav-label">Boshqaruv</div>
+            <ul style="list-style:none; padding:0; margin:0;">
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'products' %}" class="sidebar-nav-link {% block product_active %}{% endblock %}">
+                        <i class="fas fa-box-open"></i>
+                        <span>Mahsulotlar</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'clients' %}" class="sidebar-nav-link {% block client_active %}{% endblock %}">
+                        <i class="fas fa-users"></i>
+                        <span>Mijozlar</span>
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-nav-label">Moliya</div>
+            <ul style="list-style:none; padding:0; margin:0;">
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'sales' %}" class="sidebar-nav-link {% block sale_active %}{% endblock %}">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Sotuvlar</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'imports' %}" class="sidebar-nav-link {% block import_product_active %}{% endblock %}">
+                        <i class="fas fa-truck-loading"></i>
+                        <span>Kirimlar tarixi</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'pay-debts' %}" class="sidebar-nav-link {% block pad_debt_active %}{% endblock %}">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Qarz to'lash</span>
+                    </a>
+                </li>
+            </ul>
+
+            {% if user.is_superuser %}
+            <div class="sidebar-nav-label">Adminstration</div>
+            <ul style="list-style:none; padding:0; margin:0;">
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'management' %}" class="sidebar-nav-link {% block staff_active %}{% endblock %}">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Xodimlar</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'branches' %}" class="sidebar-nav-link {% block branch_active %}{% endblock %}">
+                        <i class="fas fa-store"></i>
+                        <span>Filiallar</span>
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+
+            <div class="sidebar-nav-label">Hisob</div>
+            <ul style="list-style:none; padding:0; margin:0;">
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'profile' %}" class="sidebar-nav-link {% block profile_active %}{% endblock %}">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Profil</span>
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="{% url 'logout' %}" class="sidebar-nav-link">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Chiqish</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="sidebar-logout-btn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Tizimdan chiqish</span>
+            </a>
+        </div>
     </aside>
 
-    <!-- Content Wrapper. Contains page content -->
-    <div class="content-wrapper">
-        <!-- Content Header (Page header) -->
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">{% block page %}{% endblock %}</h1>
-                    </div><!-- /.col -->
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="{% url 'logout' %}">Tizimdan chiqish</a></li>
-                        </ol>
-                    </div><!-- /.col -->
-                </div><!-- /.row -->
-            </div><!-- /.container-fluid -->
-        </div>
-        {% block content %}
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="topbar-hamburger" id="hamburgerBtn" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="topbar-title">{% block page %}{% endblock %}</h1>
+            </div>
+            <div class="topbar-right">
+                {% block topbar_extra %}{% endblock %}
+            </div>
+        </header>
 
-        {% endblock %}
-        <!-- jQuery -->
-        <script src="{% static 'plugins/jquery/jquery.min.js' %}"></script>
-        <!-- Bootstrap -->
-        <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-        <!-- AdminLTE -->
-        <script src="{% static 'dist/js/adminlte.js' %}"></script>
+        <!-- Content -->
+        <main class="content-area animate-fade-in">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+</div>
 
-        <!-- OPTIONAL SCRIPTS -->
-        <script src="{% static 'plugins/chart.js/Chart.min.js' %}"></script>
-        <!-- AdminLTE for demo purposes -->
-        <script src="{% static 'dist/js/demo.js' %}"></script>
-        <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-        <script src="{% static 'dist/js/pages/dashboard3.js' %}"></script>
+<!-- Global Scripts: jQuery and Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Sidebar Toggle Script -->
+<script>
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+}
+// Close sidebar on ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSidebar();
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+
 </body>
 </html>

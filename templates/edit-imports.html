@@ -1,36 +1,41 @@
 {% extends 'base.html' %}
-{% block title %} Kirimlar tarixi {% endblock %}
-{% block page %} Kirimlar tarixi {% endblock %}
-{% block import_product_active %} active {% endblock %}
+{% block title %}Kirimni tahrirlash{% endblock %}
+{% block page %}Kirimni tahrirlash{% endblock %}
+{% block import_product_active %}active{% endblock %}
+
 {% block content %}
-<!-- Modal body -->
-<form method="post" id="edit-product-form" style="margin: 20px;">
-    {% csrf_token %}
-    <label>Maxsulot:</label>
-    <select name="product_id" id="product" class="form-control">
-        {% for product in products %}
-        <option value="{{ product.id }}" {% if product.id == import_product.product.id %}selected{% endif %}>
-            {{ product.name }} ({{ product.quantity }} {{ product.unit }} mavjud!)
-        </option>
 
-        {% endfor %}
-    </select>
-    <br>
-    <label>Kelgan narx:</label>
-    <input type="text" name="buy_price" value="{{import_product.buy_price}}"
-           id="edit-product-brend" class="form-control" required>
-    <br>
-    <label>Miqdor:</label>
-    <input type="text" name="quantity" value="{{import_product.quantity}}"
-           id="edit-product-price" class="form-control" required>
-    <br>
-
-    <!-- Modal footer -->
-    <button type="submit" class="btn btn-success">Yangilash</button>
-    <a href="{% url 'imports' %}">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Yopish</button>
-    </a>
-
-</form>
+<div class="edit-form-container animate-slide-up">
+    <div class="edit-form-header">
+        <h3><i class="fas fa-pen"></i> Kirimni tahrirlash</h3>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="edit-form-body">
+            <div class="form-group">
+                <label class="form-label">Mahsulot</label>
+                <select name="product_id" class="form-control" required>
+                    {% for product in products %}
+                    <option value="{{ product.id }}" {% if product.id == import_product.product.id %}selected{% endif %}>
+                        {{ product.name }} ({{ product.quantity }} {{ product.unit }} mavjud)
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Miqdori</label>
+                <input type="number" name="quantity" value="{{ import_product.quantity }}" class="form-control" step="any" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Sotib olingan narx</label>
+                <input type="number" name="buy_price" value="{{ import_product.buy_price }}" class="form-control" step="any" required>
+            </div>
+        </div>
+        <div class="edit-form-footer">
+            <a href="{% url 'imports' %}" class="btn btn-ghost">Bekor qilish</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Saqlash</button>
+        </div>
+    </form>
+</div>
 
 {% endblock %}
